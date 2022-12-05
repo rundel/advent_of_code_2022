@@ -21,19 +21,19 @@ moves = tibble(input = test2) |>
   extract(input, into = c("n", "start","end"), "move (\\d+) from (\\d+) to (\\d+)", convert=TRUE)
 
 
-#board  = tibble(input = input1) |>
-#  extract(
-#    input, into=paste0("x",1:9), 
-#    "(?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   )"
-#  ) |>
-#  as.matrix() %>%
-#  rbind("", "", "", "","", "","", "","", "","", "",
-#        "", "", "", "","", "","", "","", "","", "",
-#        "", "", "", "","", "","", "","", "","", "",
-#        .)
-#
-#moves = tibble(input = input2) |>
-#  extract(input, into = c("n", "start","end"), "move (\\d+) from (\\d+) to (\\d+)", convert=TRUE)
+board  = tibble(input = input1) |>
+  extract(
+    input, into=paste0("x",1:9), 
+    "(?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   ) (?:\\[([A-Z])\\]|   )"
+  ) |>
+  as.matrix() %>%
+  rbind("", "", "", "","", "","", "","", "","", "",
+        "", "", "", "","", "","", "","", "","", "",
+        "", "", "", "","", "","", "","", "","", "",
+        .)
+
+moves = tibble(input = input2) |>
+  extract(input, into = c("n", "start","end"), "move (\\d+) from (\\d+) to (\\d+)", convert=TRUE)
 
 
 find_top = function(m, i) {
@@ -106,3 +106,67 @@ pwalk(
 
 apply(board, 2, function(x) x[which(x!="")[1]])
 
+
+
+## A non-stupid solution
+
+input = readLines("day05/input.txt")
+
+board = tibble(input = input) |>
+  mutate(
+    l = nchar(input)
+  ) %>%
+  slice(1:(which(l == 0) - 2)) %>%
+  mutate(
+    values = str_split(input, ""),
+    test = map(
+      values, 
+      ~ .x[seq(2, length(.x), by = 4)] %>% 
+          {setNames(., paste0("x",seq_along(.)))}
+    )
+  ) %>% 
+  select(test) %>%
+  unnest_wider(test) %>%
+  map(~ .x[.x != " "])
+
+moves = tibble(input = input) |>
+  extract(
+    input, into = c("n", "start","end"), 
+    "move (\\d+) from (\\d+) to (\\d+)", 
+    convert=TRUE
+  ) |>
+  filter(!is.na(n))
+
+## Task 1
+
+board_t1 = board
+
+pwalk(
+  moves,
+  function(n, start, end) {
+    for (i in seq_len(n)) {
+      val = board_t1[[start]][1]
+      board_t1[[start]] <<- board_t1[[start]][-1]
+      board_t1[[end]] <<- c(val, board_t1[[end]])
+    }
+  }
+)
+
+map_chr(board_t1, 1) |>
+  paste(collapse="")
+
+## Task 2
+
+board_t2 = board
+
+pwalk(
+  moves,
+  function(n, start, end) {
+      val = board_t2[[start]][1:n]
+      board_t2[[start]] <<- board_t2[[start]][-(1:n)]
+      board_t2[[end]] <<- c(val, board_t2[[end]])
+  }
+)
+
+map_chr(board_t2, 1) |>
+  paste(collapse="")
