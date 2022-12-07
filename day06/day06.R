@@ -88,3 +88,17 @@ tibble(input = input) |>
   ) %>%
   filter(status)
   
+## w/ slider
+
+tibble(input = input) |>
+  mutate(
+    letters = str_split(input, "")
+  ) %>%
+  select(letters) %>%
+  unnest_longer(letters) %>%
+  mutate(
+    id = 1:n(),
+    vals = slider::slide(letters, ~.x, .before=3, .complete = TRUE),
+    status = map_lgl(vals, ~ length(unique(.x)) == 4 & all(!is.na(.x))) 
+  ) %>%
+  filter(status)
