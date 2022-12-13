@@ -32,8 +32,8 @@ d = map(
 
 comp = function(s1, s2) {
   
-  #cat("s1:", str(s1), "\n")
-  #cat("s2:", str(s2), "\n")
+  ##cat("s1:", str(s1), "\n")
+  ##cat("s2:", str(s2), "\n")
   
   for (i in seq_len(max(length(s1), length(s2)))) {
     res = "equal"
@@ -42,21 +42,21 @@ comp = function(s1, s2) {
     } else if (i > length(s2)) {
       return("wrong")
     } else if (is.numeric(s1[[i]]) & is.numeric(s2[[i]])) {
-      cat("nn\n")
-      cat("Compare ",s1[[i]], s2[[i]],"\n")
+      #cat("nn\n")
+      #cat("Compare ",s1[[i]], s2[[i]],"\n")
       if (s1[[i]] < s2[[i]]) {
         return("right")
       } else if (s1[[i]] > s2[[i]]) {
         return("wrong")
       }
     } else if (is.list(s1[[i]]) & is.list(s2[[i]])) {
-      cat("ll\n")
+      #cat("ll\n")
       res = comp(s1[[i]], s2[[i]])
     } else if (is.list(s1[[i]])) {
-      cat("ln\n")
+      #cat("ln\n")
       res = comp(s1[[i]], list(s2[[i]]))
     } else if (is.list(s2[[i]])) {
-      cat("nl\n")
+      #cat("nl\n")
       res = comp(list(s1[[i]]), s2[[i]])
     } else {
       stop("opps - shouldnt be here")
@@ -72,7 +72,7 @@ comp = function(s1, s2) {
 
 ans = imap_chr(
   d,
-  ~ {cat("\n\nPair ",.y,"\n");comp(.x[[1]],.x[[2]])}
+  ~ {comp(.x[[1]],.x[[2]])}
 ) 
 
 ans %>%
