@@ -36,4 +36,4 @@ z = rev_vals[res+3]
 
 sum(vals[z] * 5^(length(z):1-1))
 
-
+paste(z,collapse="")
